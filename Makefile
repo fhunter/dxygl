@@ -1,5 +1,5 @@
 CFLAGS=-g
-LDFLAGS=-g -lfl
+LDFLAGS=-g -lfl -lm
 
 all: hp2dxy
 

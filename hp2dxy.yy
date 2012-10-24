@@ -3,22 +3,27 @@
 
 #include <math.h>
 
+float xscale = 20;
+float yscale = 20;
+
 %}
 
 %x PU
 %x PD
 %x SP
 
-float scale = 1;
 
 DIGIT	[0-9]
 %%
-<INITIAL>PU	{printf("Pen UP");BEGIN(PU);};
-<INITIAL>PD	{printf("Pen DOWN");BEGIN(PU);};
-<INITIAL>IN;*	{printf("H\n");};
+<INITIAL>PU	{printf("M");BEGIN(PU);};
+<INITIAL>PD	{printf("D");BEGIN(PU);};
+<INITIAL>SP	{printf("J");BEGIN(SP);};
+<INITIAL>IN;*	{printf("H\r");};
 <PU,PD>{DIGIT}+	{
-		printf("Integer %s (%d)\n",yytext,atoi(yytext));
+		printf("%d",(int)ceil(atoi(yytext)*1.0/xscale));
 	}
-<PU,PD>;	BEGIN(INITIAL);
+<SP>{DIGIT}	{printf("%s",yytext);};
+<PU,PD,SP>;	{printf("\r");BEGIN(INITIAL);};
+;	printf("\r");
 .	printf("%s",yytext);
 %%
