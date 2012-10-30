@@ -4,8 +4,8 @@
 #include <math.h>
 #define EOLN	"\n"
 
-float xscale = 20;
-float yscale = 20;
+float xscale = 4;
+float yscale = 4;
 
 %}
 
@@ -30,6 +30,7 @@ DIGIT	[0-9]
 <pen_down>PA		{printf(EOLN"D");BEGIN(PA);};
 <SP>{DIGIT}	{printf("%s",yytext);};
 <PU,PD,SP,PA>;	{printf(EOLN);BEGIN(INITIAL);};
+<PU,PD,SP,PA>\n	{printf(EOLN);BEGIN(INITIAL);};
 ;	printf(EOLN);
 .	printf("%s",yytext);
 %%
