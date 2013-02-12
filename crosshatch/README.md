@@ -1,2 +1,1 @@
-This is a demo for crosshatching on DXYGL plotter
-
+Convert image to crosshatch for plotter.
