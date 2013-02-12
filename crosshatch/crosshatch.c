@@ -59,10 +59,10 @@ int main( int argc, char **argv )
     printf( PS_CMD "1" ENDER );
     x = y = 0;
     for( y = 0; y < height; y++ ) {
-
-      printf( UP_CMD "%ld,%ld" ENDER, 0, y * A4_HEIGHT / height );
-      pen_state = PEN_UP;
-
+      if(pen_state != PEN_UP) {
+        printf( UP_CMD "%ld,%ld" ENDER, 0, y * A4_HEIGHT / height );
+        pen_state = PEN_UP;
+      };
       x=0;
       while(x<width){
         if( get_light( x, y, image ) < 127 ) {
@@ -78,6 +78,10 @@ int main( int argc, char **argv )
           pen_state = PEN_UP;
         };
 	x++;
+      };
+      if(pen_state !=PEN_UP){
+        printf(UP_CMD "%ld,%ld" ENDER, x*A4_WIDTH/width, y*A4_HEIGHT/height);
+        pen_state = PEN_UP;
       };
     };
     printf( UP_CMD "0,0" ENDER );
