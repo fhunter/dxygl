@@ -2,7 +2,6 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
-
 int get_light( long x, long y, Imlib_Image image )
 {
   float hue, lightness, saturation;
@@ -10,6 +9,38 @@ int get_light( long x, long y, Imlib_Image image )
   imlib_image_query_pixel_hlsa( x, y, &hue, &lightness, &saturation,
                                 &alpha );
   return ( int ) trunc( lightness * 255 );
+};
+
+long x = 0, y = 0;
+
+int in_image( long width, long height )
+{
+  if( ( x >= 0 ) && ( y >= 0 ) && ( x < width ) && ( y < width ) ) {
+    return 1;
+  }
+  else {
+    return 0;
+  };
+};
+
+void get_next_point( long width, long height )
+{
+  static int direction = 1;
+  x += direction;
+  if( x >= width ) {
+    x -= direction;
+    direction = -direction;
+    y++;
+  };
+  if( x < 0 ) {
+    x -= direction;
+    direction = -direction;
+    y++;
+  };
+  if( y >= height ) {
+    x = -1;
+    y = -1;
+  };
 };
 
 #define PEN_UP	0
@@ -35,57 +66,61 @@ int get_light( long x, long y, Imlib_Image image )
 #define A4_HEIGHT	1485
 #endif
 
+void pen_update( int pen_state, long width, long height )
+{
+  if( pen_state == PEN_DOWN ) {
+    printf( DN_CMD "%ld,%ld" ENDER, x * A4_WIDTH / width,
+            y * A4_HEIGHT / height );
+  }
+  else {
+    printf( UP_CMD "%ld,%ld" ENDER, x * A4_WIDTH / width,
+            y * A4_HEIGHT / height );
+  };
+};
+
 int main( int argc, char **argv )
 {
   Imlib_Image image;
-  long x, y;
   long width, height;
 
   int pen_state = PEN_UP;
+  int light, old_light;
 
   if( argc != 2 )
     exit( 1 );
 
-  image = imlib_load_image( argv[1] );  //Загрузка изображения
+  image = imlib_load_image( argv[1] );  //Load image
 
   if( image ) {
-    imlib_context_set_image( image );   //Считывание изображения
-    width = imlib_image_get_width(  );  //Читаем ширину
-    height = imlib_image_get_height(  );        //Читаем высоту
+    imlib_context_set_image( image );
+    width = imlib_image_get_width(  );
+    height = imlib_image_get_height(  );
     printf( START_CMD );
-    printf( UP_CMD "0,0" ENDER );
-    pen_state = PEN_UP;
-
     printf( PS_CMD "1" ENDER );
-    x = y = 0;
-    for( y = 0; y < height; y++ ) {
-      if(pen_state != PEN_UP) {
-        printf( UP_CMD "%ld,%ld" ENDER, 0, y * A4_HEIGHT / height );
-        pen_state = PEN_UP;
-      };
-      x=0;
-      while(x<width){
-        if( get_light( x, y, image ) < 127 ) {
-          //This is dark
-          printf( DN_CMD "%ld,%ld" ENDER, x * A4_WIDTH / width,
-                  y * A4_HEIGHT / height );
-          pen_state = PEN_DOWN;
-          while( ( x < width ) && ( get_light( x, y, image ) < 127 ) ) {
-            x++;
-          };
-          printf( UP_CMD "%ld,%ld" ENDER, x * A4_WIDTH / width,
-                  y * A4_HEIGHT / height );
-          pen_state = PEN_UP;
-        };
-	x++;
-      };
-      if(pen_state !=PEN_UP){
-        printf(UP_CMD "%ld,%ld" ENDER, x*A4_WIDTH/width, y*A4_HEIGHT/height);
-        pen_state = PEN_UP;
-      };
-    };
-    printf( UP_CMD "0,0" ENDER );
+
     pen_state = PEN_UP;
+    pen_update( pen_state, width, height );
+
+    x = y = 0;
+    light = old_light = ( get_light( 0, 0, image ) < 127 );
+    while( ( x >= 0 ) && ( y >= 0 ) ) {
+      light = ( get_light( x, y, image ) < 127 );
+      if( old_light == light ) {
+        if( light ) {
+          pen_state = PEN_DOWN;
+          pen_update( pen_state, width, height );
+        }
+        else {
+          pen_state = PEN_UP;
+          pen_update( pen_state, width, height );
+        };
+      };
+      get_next_point( width, height );
+      old_light = light;
+    };
+    x = y = 0;
+    pen_state = PEN_UP;
+    pen_update( pen_state, width, height );
   };
 
   return 0;
