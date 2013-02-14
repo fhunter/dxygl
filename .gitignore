@@ -12,3 +12,10 @@
 *.a
 
 *.swp
+
+#
+y.tab.c
+y.tab.h
+hp2dxy.c
+crosshatch/crosshatch
+hp2dxy
