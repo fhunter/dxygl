@@ -37,6 +37,7 @@ int read_pen_color(  )
 };
 
 int read_and_convert_coordinates(){
+//FIXME: bug, does not check for lack of coordinates
   float x=0,y=0;
   int ch;
   scanf("%f , %f",&x,&y);
@@ -81,6 +82,7 @@ void analise_p(  )
   switch ( ch ) {
     case 'u':
     case 'U':{
+//FIXME: bug, does not check for lack of coordinates
         printf( "M" );
 	while(read_and_convert_coordinates()){
 	};
@@ -90,11 +92,19 @@ void analise_p(  )
       };
     case 'd':
     case 'D':{
+//FIXME: bug, does not check for lack of coordinates
         printf( "D" );
 	while(read_and_convert_coordinates()){
 	};
         read_to_eoln(  );
         printf( "\n" );
+        break;
+      };
+    case 'A':
+    case 'a':{
+//FIXME: TBD
+        printf( "PA command\n" );
+        read_to_eoln();
         break;
       };
     default:{
@@ -103,6 +113,46 @@ void analise_p(  )
         break;
       }
   };
+};
+
+void analise_l(  )
+{
+  int ch;
+  ch = getchar(  );
+  switch ( ch ) {
+    case 'B':
+    case 'b':{
+//FIXME: TBD
+        printf( "LB command\n");
+        read_to_eoln();
+        break;
+      };
+    default:{
+        printf("Unrecognised token\n");
+        read_to_eoln();
+        break;
+      };
+   };
+};
+
+void analise_d(  )
+{
+  int ch;
+  ch = getchar(  );
+  switch ( ch ) {
+    case 'I':
+    case 'i':{
+//FIXME: TBD
+        printf( "DI command\n");
+        read_to_eoln();
+        break;
+      };
+    default:{
+        printf("Unrecognised token\n");
+        read_to_eoln();
+        break;
+      };
+   };
 };
 
 void analise_s(  )
@@ -114,6 +164,20 @@ void analise_s(  )
     case 'p':{
         printf( "J%d\n", read_pen_color(  ) );
         read_to_eoln(  );
+        break;
+      };
+    case 'C':
+    case 'c':{
+//FIXME: TBD
+        printf("SC command\n");
+        read_to_eoln;
+        break;
+      };
+    case 'R':
+    case 'r':{
+//FIXME: TBD
+        printf("SR command\n");
+        read_to_eoln;
         break;
       };
     default:{
@@ -141,6 +205,16 @@ int main( void )
       case 'S':
       case 's':{
           analise_s(  );
+          break;
+        };
+      case 'D':
+      case 'd':{
+          analise_d(  );
+          break;
+        };
+      case 'L':
+      case 'l':{
+          analise_l(  );
           break;
         };
       case ';':
