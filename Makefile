@@ -1,4 +1,4 @@
-CFLAGS=-g
+CFLAGS=-g -Wall -Werror
 LDFLAGS=-g -lm
 
 all: hp2dxy
