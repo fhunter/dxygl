@@ -1,12 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <ctype.h>
 
 #define HPGL_RES 0.025
 #define PL_RES	0.1
+enum
+{ PEN_DOWN = 0, PEN_UP };
 
-float xscale = HPGL_RES/PL_RES;
-float yscale = HPGL_RES/PL_RES;
+float xscale = HPGL_RES / PL_RES;
+float yscale = HPGL_RES / PL_RES;
+int pen_state = PEN_UP;
 
 void read_to_eoln(  )
 {
@@ -36,23 +40,33 @@ int read_pen_color(  )
   return color;
 };
 
-int read_and_convert_coordinates(){
-//FIXME: bug, does not check for lack of coordinates
-  float x=0,y=0;
+int read_and_convert_coordinates(  )
+{
+  float x = 0, y = 0;
   int ch;
-  scanf("%f , %f",&x,&y);
-  x=x*xscale;y=y*yscale;
-  x=nearbyintf(x);y=nearbyintf(y);
-  printf("%d,%d",(int)(x),(int)(y));
-  ch=getchar();if(ch<0) return;
-  while(isblank(ch)){
-	 ch=getchar();
-	if(ch<0) return;
+  int count = 0;
+  count = scanf( "%f , %f", &x, &y );
+  x = x * xscale;
+  y = y * yscale;
+  x = nearbyintf( x );
+  y = nearbyintf( y );
+  if( count == 0 )
+    return 0;
+  printf( "%d,%d", ( int ) ( x ), ( int ) ( y ) );
+  ch = getchar(  );
+  if( ch < 0 )
+    return 0;
+  while( isblank( ch ) ) {
+    ch = getchar(  );
+    if( ch < 0 )
+      return 0;
   };
-  if(ch==',') {
-	printf(",");
-	return 1;
-  }else ungetc(ch, stdin);
+  if( ch == ',' ) {
+    printf( "," );
+    return 1;
+  }
+  else
+    ungetc( ch, stdin );
   return 0;
 };
 
@@ -82,29 +96,38 @@ void analise_p(  )
   switch ( ch ) {
     case 'u':
     case 'U':{
-//FIXME: bug, does not check for lack of coordinates
         printf( "M" );
-	while(read_and_convert_coordinates()){
-	};
+        pen_state = PEN_UP;
+        while( read_and_convert_coordinates(  ) ) {
+        };
         read_to_eoln(  );
         printf( "\n" );
         break;
       };
     case 'd':
     case 'D':{
-//FIXME: bug, does not check for lack of coordinates
         printf( "D" );
-	while(read_and_convert_coordinates()){
-	};
+        pen_state = PEN_DOWN;
+        while( read_and_convert_coordinates(  ) ) {
+        };
         read_to_eoln(  );
         printf( "\n" );
         break;
       };
     case 'A':
     case 'a':{
-//FIXME: TBD
-        printf( "PA command\n" );
-        read_to_eoln();
+        switch ( pen_state ) {
+          case PEN_UP:
+            printf( "M" );
+            break;
+          case PEN_DOWN:
+            printf( "D" );
+            break;
+        };
+        while( read_and_convert_coordinates(  ) ) {
+        };
+        read_to_eoln(  );
+        printf( "\n" );
         break;
       };
     default:{
@@ -123,16 +146,16 @@ void analise_l(  )
     case 'B':
     case 'b':{
 //FIXME: TBD
-        printf( "LB command\n");
-        read_to_eoln();
+        printf( "LB command\n" );
+        read_to_eoln(  );
         break;
       };
     default:{
-        printf("Unrecognised token\n");
-        read_to_eoln();
+        printf( "Unrecognised token\n" );
+        read_to_eoln(  );
         break;
       };
-   };
+  };
 };
 
 void analise_d(  )
@@ -143,16 +166,16 @@ void analise_d(  )
     case 'I':
     case 'i':{
 //FIXME: TBD
-        printf( "DI command\n");
-        read_to_eoln();
+        printf( "DI command\n" );
+        read_to_eoln(  );
         break;
       };
     default:{
-        printf("Unrecognised token\n");
-        read_to_eoln();
+        printf( "Unrecognised token\n" );
+        read_to_eoln(  );
         break;
       };
-   };
+  };
 };
 
 void analise_s(  )
@@ -169,15 +192,15 @@ void analise_s(  )
     case 'C':
     case 'c':{
 //FIXME: TBD
-        printf("SC command\n");
-        read_to_eoln;
+        printf( "SC command\n" );
+        read_to_eoln(  );
         break;
       };
     case 'R':
     case 'r':{
 //FIXME: TBD
-        printf("SR command\n");
-        read_to_eoln;
+        printf( "SR command\n" );
+        read_to_eoln(  );
         break;
       };
     default:{
