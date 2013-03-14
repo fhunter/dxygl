@@ -12,7 +12,9 @@
 *.a
 
 *.swp
-
+#
+*.*~
 #
 crosshatch/crosshatch
+optimizer/optimizer
 hp2dxy
